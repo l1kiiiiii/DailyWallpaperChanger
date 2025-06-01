@@ -1,5 +1,6 @@
 package com.example.daily
 
+import androidx.compose.ui.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,20 +36,21 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.rememberCoroutineScope // For launching coroutine on button click
 import androidx.core.content.ContextCompat // Required for ContextCompat.checkSelfPermission
+import com.example.daily.ui.theme.DailyTheme
 import kotlinx.coroutines.launch // For scope.launch
-
-
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        scheduleDailyWallpaperUpdate(applicationContext)
         setContent {
-            WallpaperApp()
+            DailyTheme {
+                WallpaperApp()
+            }
         }
     }
 }
-fun scheduleDailyWallpaperUpdate(context: Context) {
+fun scheduleDailyWallpaperUpdate(context: Context) { // Changed to Context for broader usability
     val constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
@@ -60,11 +62,10 @@ fun scheduleDailyWallpaperUpdate(context: Context) {
     WorkManager.getInstance(context)
         .enqueueUniquePeriodicWork(
             "daily_wallpaper_update",
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.KEEP, // KEEPS the existing work if it's already scheduled
             workRequest
         )
 }
-
 @Composable
 fun WallpaperApp(viewModel: WallpaperViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
     val context = LocalContext.current
@@ -74,10 +75,9 @@ fun WallpaperApp(viewModel: WallpaperViewModel = androidx.lifecycle.viewmodel.co
     LaunchedEffect(Unit) {
         viewModel.fetchImageOfTheDay()
     }
-
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = Color.Black // Set background to pure black
     ) {
         Column(
             modifier = Modifier
@@ -95,26 +95,29 @@ fun WallpaperApp(viewModel: WallpaperViewModel = androidx.lifecycle.viewmodel.co
                         .height(400.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = imageTitle, style = MaterialTheme.typography.headlineSmall)
+                Text(
+                    text = imageTitle,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.White // Ensure text is readable on black background
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 SetWallpaperButton(imageUrl)
             } else {
-                Text(text = "Loading image...", style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "Loading image...",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White // Ensure text is readable
+                )
             }
         }
     }
 }
-
-
-
 @Composable
 fun SetWallpaperButton(imageUrl: String) {
     val context = LocalContext.current
     val wallpaperManager = WallpaperManager.getInstance(context)
     var showDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope() // For launching coroutines
-
-    // --- Modern Permission Handling ---
     var hasSetWallpaperPermission by remember {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             mutableStateOf(true) // Permission not needed or implicitly granted before Android 13
@@ -127,7 +130,6 @@ fun SetWallpaperButton(imageUrl: String) {
             )
         }
     }
-
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -135,12 +137,9 @@ fun SetWallpaperButton(imageUrl: String) {
             hasSetWallpaperPermission = true
         } else {
             hasSetWallpaperPermission = false
-            // Optionally, show a message to the user explaining why the permission is needed
-            // Toast.makeText(context, "Permission denied. Cannot set wallpaper.", Toast.LENGTH_SHORT).show()
+
         }
     }
-    // --- End of Modern Permission Handling ---
-
     Button(onClick = {
         if (hasSetWallpaperPermission) { // Check our tracked permission state
             scope.launch { // Use the coroutine scope
@@ -171,7 +170,6 @@ fun SetWallpaperButton(imageUrl: String) {
                                 null // Could not convert
                             }
                         }
-
                         bitmapToSet?.let {
                             wallpaperManager.setBitmap(it)
                             showDialog = true
