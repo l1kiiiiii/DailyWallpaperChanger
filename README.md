@@ -28,8 +28,8 @@ The Daily Wallpaper App automatically fetches and displays NASA's Astronomy Pict
 ## Project Structure
 ## Setup and Configuration
 
-1.  **Clone the repository:** git clone https://your-repository-url/DailyWallpaperApp.git cd DailyWallpaperApp
-2.  2.  **API Key:**
+1.  **Clone the repository:** git clone https://your-repository-url/DailyWallpaperApp.git 
+2.  1.  **API Key:**
     *   This app requires a NASA API key for fetching the APOD. You can get one from [https://api.nasa.gov/](https://api.nasa.gov/).
     *   Create a file named `secrets.properties` in the root directory of the project (at the same level as `build.gradle.kts` and `settings.gradle.kts`).
     *   Add your API key to `secrets.properties` like this:
