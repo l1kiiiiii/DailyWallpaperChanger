@@ -8,7 +8,6 @@ interface ApodApiService {
     suspend fun getImageOfTheDay(@Query("api_key") apiKey: String): ApodResponse
 }
 data class ApodResponse(
-
     val url: String,
     val title: String,
     val date: String
