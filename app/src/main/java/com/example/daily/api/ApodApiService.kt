@@ -7,8 +7,9 @@ interface ApodApiService {
     @GET("planetary/apod")
     suspend fun getImageOfTheDay(@Query("api_key") apiKey: String): ApodResponse
 }
-
+val temp
 data class ApodResponse(
+
     val url: String,
     val title: String,
     val date: String
