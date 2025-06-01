@@ -1,3 +1,4 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -17,6 +18,13 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    val localProperties=Properties()
+    val localPropertiesFile=File(rootDir,"secrets.properties")
+    if (localPropertiesFile.exists() && localPropertiesFile.isFile){
+        localPropertiesFile.inputStream().use {
+            localProperties.load(it)
+        }
+    }
 
     buildTypes {
         release {
@@ -25,6 +33,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String","API_KEY_PROD",localProperties.getProperty("API_KEY"))
+        }
+        debug {
+            buildConfigField("String","API_KEY",localProperties.getProperty("API_KEY"))
         }
     }
     compileOptions {
@@ -34,8 +46,13 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
     buildFeatures {
         compose = true
+        buildConfig = true
+        resValues=true
     }
 }
 
@@ -49,6 +66,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -56,4 +74,20 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+
+    // Coil for image loading
+    implementation(libs.coil.compose)
+
+    // Lifecycle and ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // Permissions
+
+    implementation("androidx.activity:activity-compose:1.9.0")
 }
