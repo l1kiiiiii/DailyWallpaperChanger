@@ -38,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope // For launching coroutin
 import androidx.core.content.ContextCompat // Required for ContextCompat.checkSelfPermission
 import com.example.daily.ui.theme.DailyTheme
 import kotlinx.coroutines.launch // For scope.launch
+import androidx.core.graphics.createBitmap
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,12 +134,7 @@ fun SetWallpaperButton(imageUrl: String) {
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        if (isGranted) {
-            hasSetWallpaperPermission = true
-        } else {
-            hasSetWallpaperPermission = false
-
-        }
+        hasSetWallpaperPermission =     isGranted
     }
     Button(onClick = {
         if (hasSetWallpaperPermission) { // Check our tracked permission state
@@ -157,10 +153,9 @@ fun SetWallpaperButton(imageUrl: String) {
                             // Fallback for other drawable types (draw to a new bitmap)
                             // This part might need to be more robust depending on image sources
                             try {
-                                val bmp = Bitmap.createBitmap(
+                                val bmp = createBitmap(
                                     drawable.intrinsicWidth.coerceAtLeast(1),
-                                    drawable.intrinsicHeight.coerceAtLeast(1),
-                                    Bitmap.Config.ARGB_8888
+                                    drawable.intrinsicHeight.coerceAtLeast(1)
                                 )
                                 val canvas = android.graphics.Canvas(bmp)
                                 drawable.setBounds(0, 0, canvas.width, canvas.height)
